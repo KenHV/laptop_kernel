@@ -31,6 +31,7 @@ prepare() {
       echo "Applying optimizations..."
       scripts/config --disable CONFIG_GENERIC_CPU
       scripts/config --set-val CONFIG_NR_CPUS $(nproc --all)
+      scripts/config --set-val CONFIG_VGA_ARB_MAX_GPUS $(lspci | grep -E "VGA|3D" | wc -l)
 
     if [[ "$vendor" == "GenuineIntel" ]]; then
       scripts/config --enable CONFIG_MNATIVE_INTEL
@@ -38,6 +39,31 @@ prepare() {
       scripts/config --enable CONFIG_X86_AMD_PSTATE
       scripts/config --enable CONFIG_MNATIVE_AMD
     fi
+  fi
+
+  if [ ! -z ${personal+x} ]; then
+    echo "Tailoring for personal usage..."
+    scripts/config --disable CONFIG_X86_MCE_AMD
+    scripts/config --disable CONFIG_MICROCODE_AMD
+    scripts/config --disable CONFIG_AMD_MEM_ENCRYPT
+    scripts/config --disable CONFIG_NUMA
+    scripts/config --disable CONFIG_X86_SGX
+    scripts/config --disable CONFIG_X86_POWERNOW_K8
+    scripts/config --disable CONFIG_X86_AMD_FREQ_SENSITIVITY
+    scripts/config --disable CONFIG_DRM_RADEON
+    scripts/config --disable CONFIG_DRM_AMDGPU
+    scripts/config --disable CONFIG_DRM_NOUVEAU
+    scripts/config --disable CONFIG_CPU_ISOLATION
+    scripts/config --disable CONFIG_INPUT_TOUCHSCREEN
+    scripts/config --disable CONFIG_INPUT_TABLET
+    scripts/config --disable CONFIG_I2C_STUB
+    scripts/config --disable CONFIG_MEMSTICK
+    scripts/config --disable CONFIG_MELLANOX_PLATFORM
+    scripts/config --disable CONFIG_EARLY_PRINTK_DBGP
+    scripts/config --disable CONFIG_EARLY_PRINTK_USB_XDBC
+    scripts/config --disable CONFIG_ACPI_DEBUG
+    scripts/config --disable CONFIG_SCSI_DEBUG
+    scripts/config --disable CONFIG_SCSI_LOGGING
   fi
 
   make -s kernelrelease > version
