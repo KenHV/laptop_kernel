@@ -10,7 +10,7 @@ arch=(x86_64)
 license=(GPL2)
 makedepends=(
   bc kmod libelf pahole cpio perl tar xz
-  git
+  clang llvm lld git
 )
 
 options=('!strip')
