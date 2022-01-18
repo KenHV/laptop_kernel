@@ -63,42 +63,14 @@ prepare() {
     scripts/config --module CONFIG_X86_AMD_PSTATE
   fi
 
+  if [ "$personal" = "y" ]; then
+    echo "Applying personal config..."
+    make defconfig athena_defconfig
+  fi
+
   if [ "$lto" = "y" ]; then
     echo "Enabling Clang Full LTO..."
     scripts/config --enable CONFIG_LTO_CLANG_FULL
-  fi
-
-  if [ "$personal" = "y" ]; then
-    echo "Tailoring for personal usage..."
-    if [ "$ci" = "y" ]; then
-      scripts/config --disable CONFIG_GENERIC_CPU
-      scripts/config --enable CONFIG_MSKYLAKE
-      scripts/config --set-val CONFIG_NR_CPUS 8
-      scripts/config --set-val CONFIG_VGA_ARB_MAX_GPUS 2
-    fi
-
-    scripts/config --disable CONFIG_X86_MCE_AMD
-    scripts/config --disable CONFIG_MICROCODE_AMD
-    scripts/config --disable CONFIG_AMD_MEM_ENCRYPT
-    scripts/config --disable CONFIG_NUMA
-    scripts/config --disable CONFIG_X86_SGX
-    scripts/config --disable CONFIG_X86_POWERNOW_K8
-    scripts/config --disable CONFIG_X86_AMD_FREQ_SENSITIVITY
-    scripts/config --disable CONFIG_DRM_RADEON
-    scripts/config --disable CONFIG_DRM_AMDGPU
-    scripts/config --disable CONFIG_DRM_NOUVEAU
-    scripts/config --disable CONFIG_CPU_ISOLATION
-    scripts/config --disable CONFIG_INPUT_TOUCHSCREEN
-    scripts/config --disable CONFIG_INPUT_TABLET
-    scripts/config --disable CONFIG_I2C_STUB
-    scripts/config --disable CONFIG_MEMSTICK
-    scripts/config --disable CONFIG_MELLANOX_PLATFORM
-    scripts/config --disable CONFIG_EARLY_PRINTK_DBGP
-    scripts/config --disable CONFIG_EARLY_PRINTK_USB_XDBC
-    scripts/config --disable CONFIG_ACPI_DEBUG
-    scripts/config --disable CONFIG_SCSI_DEBUG
-    scripts/config --disable CONFIG_SCSI_LOGGING
-    scripts/config --disable CONFIG_KVM_AMD
   fi
 
   make -s kernelrelease > version
