@@ -19,29 +19,43 @@ export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
+if [ -z ${personal+x} ]; then
+  personal=n
+fi
+
+if [ -z ${ci+x} ]; then
+  ci=n
+fi
+
 prepare() {
   cd ..
 
   echo "Setting config..."
   make defconfig kensur_defconfig
 
-  vendor=$(lscpu | awk '/Vendor ID/{print $3}')
-  if [[ "$vendor" == "GenuineIntel" || "$vendor" == "AuthenticAMD" ]]; then
-      echo "CPU: $(lscpu | awk '/Model name/{ print substr($0, index($0,$3)) }')"
-      echo "Applying optimizations..."
-      scripts/config --disable CONFIG_GENERIC_CPU
-      scripts/config --set-val CONFIG_NR_CPUS $(nproc --all)
-      scripts/config --set-val CONFIG_VGA_ARB_MAX_GPUS $(lspci | grep -E "VGA|3D" | wc -l)
+  if [ "$ci" = "n" ]; then
+    vendor=$(lscpu | awk '/Vendor ID/{print $3}')
+    if [[ "$vendor" == "GenuineIntel" || "$vendor" == "AuthenticAMD" ]]; then
+        echo "CPU: $(lscpu | awk '/Model name/{ print substr($0, index($0,$3)) }')"
+        echo "Applying optimizations..."
+        scripts/config --disable CONFIG_GENERIC_CPU
+        scripts/config --set-val CONFIG_NR_CPUS $(nproc --all)
+        scripts/config --set-val CONFIG_VGA_ARB_MAX_GPUS $(lspci | grep -E "VGA|3D" | wc -l)
 
-    if [[ "$vendor" == "GenuineIntel" ]]; then
-      scripts/config --enable CONFIG_MNATIVE_INTEL
-    elif [[ "$vendor" == "AuthenticAMD" ]]; then
-      scripts/config --enable CONFIG_X86_AMD_PSTATE
-      scripts/config --enable CONFIG_MNATIVE_AMD
+      if [[ "$vendor" == "GenuineIntel" ]]; then
+        scripts/config --enable CONFIG_MNATIVE_INTEL
+      elif [[ "$vendor" == "AuthenticAMD" ]]; then
+        scripts/config --enable CONFIG_X86_AMD_PSTATE
+        scripts/config --enable CONFIG_MNATIVE_AMD
+      fi
     fi
+  else
+    echo "Using CI configs..."
+    scripts/config --set-val CONFIG_VGA_ARB_MAX_GPUS 3
+    scripts/config --module CONFIG_X86_AMD_PSTATE
   fi
 
-  if [ ! -z ${personal+x} ]; then
+  if [ "$personal" = "y" ]; then
     echo "Tailoring for personal usage..."
     scripts/config --disable CONFIG_X86_MCE_AMD
     scripts/config --disable CONFIG_MICROCODE_AMD
