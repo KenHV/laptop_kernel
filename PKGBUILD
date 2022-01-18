@@ -27,6 +27,10 @@ if [ -z ${ci+x} ]; then
   ci=n
 fi
 
+if [ -z ${lto+x} ]; then
+  lto=n
+fi
+
 prepare() {
   cd ..
 
@@ -55,8 +59,20 @@ prepare() {
     scripts/config --module CONFIG_X86_AMD_PSTATE
   fi
 
+  if [ "$lto" = "y" ]; then
+    echo "Enabling Clang Full LTO..."
+    scripts/config --enable CONFIG_LTO_CLANG_FULL
+  fi
+
   if [ "$personal" = "y" ]; then
     echo "Tailoring for personal usage..."
+    if [ "$ci" = "y" ]; then
+      scripts/config --disable CONFIG_GENERIC_CPU
+      scripts/config --enable CONFIG_MSKYLAKE
+      scripts/config --set-val CONFIG_NR_CPUS 8
+      scripts/config --set-val CONFIG_VGA_ARB_MAX_GPUS 2
+    fi
+
     scripts/config --disable CONFIG_X86_MCE_AMD
     scripts/config --disable CONFIG_MICROCODE_AMD
     scripts/config --disable CONFIG_AMD_MEM_ENCRYPT
@@ -78,6 +94,8 @@ prepare() {
     scripts/config --disable CONFIG_ACPI_DEBUG
     scripts/config --disable CONFIG_SCSI_DEBUG
     scripts/config --disable CONFIG_SCSI_LOGGING
+    scripts/config --disable CONFIG_X86_SGX_KVM
+    scripts/config --disable CONFIG_KVM_AMD
   fi
 
   make -s kernelrelease > version
