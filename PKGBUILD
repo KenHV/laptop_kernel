@@ -31,6 +31,10 @@ if [ -z ${lto+x} ]; then
   lto=n
 fi
 
+if [ -z ${ccache+x} ]; then
+  ccache=n
+fi
+
 prepare() {
   cd ..
 
@@ -94,7 +98,6 @@ prepare() {
     scripts/config --disable CONFIG_ACPI_DEBUG
     scripts/config --disable CONFIG_SCSI_DEBUG
     scripts/config --disable CONFIG_SCSI_LOGGING
-    scripts/config --disable CONFIG_X86_SGX_KVM
     scripts/config --disable CONFIG_KVM_AMD
   fi
 
@@ -104,10 +107,10 @@ prepare() {
 
 build() {
   cd ..
-  if ! command -v ccache &> /dev/null; then
-    make all -j$(nproc --all)
-  else
+  if [ "$ccache" = "y" ]; then
     PATH="/usr/lib/ccache/bin:${PATH}" make all -j$(nproc --all)
+  else
+    make all -j$(nproc --all)
   fi
 }
 
