@@ -1,0 +1,58 @@
+env:
+  CCACHE_SIZE: "2G"
+  CCACHE_DIR: "/tmp/ccache"
+  CCACHE_NOHASHDIR: "1"
+  RCLONE_CONF: "ENCRYPTED[5ca92063c897a5bb47b97e288b5ce51c12c17a2af1e2c94f12d632adeaa97c80da79115fc6f395d36ed697f7f31ad03e]"
+  ZSTD_CLEVEL: "1"
+
+generic_task:
+  name: Generic build
+  timeout_in: 120m
+  container:
+    image: archlinux:base-devel
+    cpu: 8
+    memory: 4G
+  setup_env_script:
+    - pacman -Syu --needed --noconfirm bc kmod libelf pahole cpio perl tar xz
+      git ccache zstd rclone clang llvm lld
+    - mkdir -p ~/.config/rclone
+    - echo "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
+    - rclone copy gdrive:ccache-generic.tar.zst /tmp
+    - tar xf /tmp/ccache-generic.tar.zst -C /tmp
+    - rm /tmp/ccache-generic.tar.zst
+    - sed -i '/E_ROOT/d' /usr/bin/makepkg
+    - sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
+    - echo 'COMPRESSZST+=(--threads=0)' >> /etc/makepkg.conf
+  build_script:
+    - env ci=y lto=y ccache=y makepkg -s --nodeps
+  store_cache_script:
+    - tar --zstd -C /tmp -cf /tmp/ccache-generic.tar.zst ccache
+    - ? rclone copy /tmp/ccache-generic.tar.zst gdrive
+  artifacts:
+    path: "*.pkg.tar.zst"
+
+athena_task:
+  name: Athena build
+  timeout_in: 120m
+  container:
+    image: archlinux:base-devel
+    cpu: 8
+    memory: 4G
+  setup_env_script:
+    - pacman -Syu --needed --noconfirm bc kmod libelf pahole cpio perl tar xz
+      git ccache zstd rclone clang llvm lld
+    - mkdir -p ~/.config/rclone
+    - echo "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
+    - rclone copy gdrive:ccache-athena.tar.zst /tmp
+    - tar xf /tmp/ccache-athena.tar.zst -C /tmp
+    - rm /tmp/ccache-athena.tar.zst
+    - sed -i '/E_ROOT/d' /usr/bin/makepkg
+    - sed -i "s/PKGEXT='.pkg.tar.xz'/PKGEXT='.pkg.tar.zst'/" /etc/makepkg.conf
+    - echo 'COMPRESSZST+=(--threads=0)' >> /etc/makepkg.conf
+  build_script:
+    - env ci=y lto=y ccache=y personal=y makepkg -s --nodeps
+  store_cache_script:
+    - tar --zstd -C /tmp -cf /tmp/ccache-athena.tar.zst ccache
+    - ? rclone copy /tmp/ccache-athena.tar.zst gdrive
+  artifacts:
+    path: "*.pkg.tar.zst"

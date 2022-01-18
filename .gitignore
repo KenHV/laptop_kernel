@@ -167,3 +167,6 @@ localversion.10-pkgrel
 localversion.20-pkgname
 pkg/
 version
+
+# CI
+!.cirrus.yml
