@@ -53,14 +53,12 @@ prepare() {
       if [[ "$vendor" == "GenuineIntel" ]]; then
         scripts/config --enable CONFIG_MNATIVE_INTEL
       elif [[ "$vendor" == "AuthenticAMD" ]]; then
-        scripts/config --enable CONFIG_X86_AMD_PSTATE
         scripts/config --enable CONFIG_MNATIVE_AMD
       fi
     fi
   else
     echo "Using CI configs..."
     scripts/config --set-val CONFIG_VGA_ARB_MAX_GPUS 3
-    scripts/config --module CONFIG_X86_AMD_PSTATE
   fi
 
   if [ "$personal" = "y" ]; then
