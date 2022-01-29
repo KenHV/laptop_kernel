@@ -19,21 +19,10 @@ export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
-if [ -z ${personal+x} ]; then
-  personal=n
-fi
-
-if [ -z ${ci+x} ]; then
-  ci=n
-fi
-
-if [ -z ${lto+x} ]; then
-  lto=n
-fi
-
-if [ -z ${ccache+x} ]; then
-  ccache=n
-fi
+[ -z ${personal+x} ] && personal=n
+[ -z ${ci+x} ] && ci=n
+[ -z ${lto+x} ] && lto=n
+[ -z ${ccache+x} ] && ccache=n
 
 prepare() {
   cd ..
