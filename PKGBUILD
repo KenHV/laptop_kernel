@@ -2,7 +2,7 @@
 # Maintainer: KenHV <yo@kenharris.xyz>
 
 pkgbase=linux-kensur
-pkgver=5.16.6.kensur
+pkgver=5.16.7.kensur
 pkgrel=1
 pkgdesc='Linux'
 _srctag=v${pkgver%.*}-${pkgver##*.}
