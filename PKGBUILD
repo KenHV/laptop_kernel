@@ -28,7 +28,7 @@ prepare() {
   cd ..
 
   echo "Setting config..."
-  make defconfig kensur_defconfig
+  make kensur_defconfig
 
   if [ "$ci" = "n" ]; then
     vendor=$(lscpu | awk '/Vendor ID/{print $3}')
@@ -52,7 +52,7 @@ prepare() {
 
   if [ "$personal" = "y" ]; then
     echo "Applying personal config..."
-    make defconfig athena_defconfig
+    make athena_defconfig
   fi
 
   if [ "$lto" = "y" ]; then
