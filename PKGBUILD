@@ -56,8 +56,8 @@ prepare() {
   fi
 
   if [ "$lto" = "y" ]; then
-    echo "Enabling Clang ThinLTO..."
-    scripts/config --enable CONFIG_LTO_CLANG_THIN
+    echo "Enabling Clang Full LTO..."
+    scripts/config --enable CONFIG_LTO_CLANG_FULL
   fi
 
   make -s kernelrelease > version
